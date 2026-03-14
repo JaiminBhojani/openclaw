@@ -41,7 +41,7 @@ describe("config view", () => {
     themeMode: "system",
     setTheme: vi.fn(),
     setThemeMode: vi.fn(),
-    gatewayUrl: "http://127.0.0.1:18789",
+    gatewayUrl: "",
     assistantName: "OpenClaw",
   });
 
@@ -221,7 +221,41 @@ describe("config view", () => {
     expect(container.textContent).toContain("Choose a theme family.");
   });
 
-  it("clears the search query from the top-bar clear button", () => {
+  it("renders the top search icon inside the search input row", () => {
+    const container = document.createElement("div");
+    render(renderConfig(baseProps()), container);
+
+    const icon = container.querySelector<SVGElement>(".config-search__icon");
+    expect(icon).not.toBeNull();
+    expect(icon?.closest(".config-search__input-row")).not.toBeNull();
+  });
+
+  it("renders top tabs for root and available sections", () => {
+    const container = document.createElement("div");
+    render(
+      renderConfig({
+        ...baseProps(),
+        schema: {
+          type: "object",
+          properties: {
+            gateway: { type: "object", properties: {} },
+            agents: { type: "object", properties: {} },
+          },
+        },
+      }),
+      container,
+    );
+
+    const tabs = Array.from(container.querySelectorAll(".config-top-tabs__tab")).map((tab) =>
+      tab.textContent?.trim(),
+    );
+    expect(tabs).toContain("Settings");
+    expect(tabs).toContain("Agents");
+    expect(tabs).toContain("Gateway");
+    expect(tabs).toContain("Appearance");
+  });
+
+  it("clears the active search query", () => {
     const container = document.createElement("div");
     const onSearchChange = vi.fn();
     render(
