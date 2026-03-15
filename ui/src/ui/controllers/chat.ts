@@ -293,7 +293,12 @@ export function handleChatEvent(state: ChatState, payload?: ChatEventPayload) {
 
   if (payload.state === "delta") {
     const next = extractText(payload.message);
-    if (typeof next === "string" && !isSilentReplyText(next) && !isSilentReplyPrefixText(next)) {
+    if (
+      typeof next === "string" &&
+      !isSilentReplyText(next) &&
+      !isSilentReplyPrefixText(next) &&
+      !isSilentReplyPrefixText(next, HEARTBEAT_TOKEN)
+    ) {
       const current = state.chatStream ?? "";
       if (!current || next.length >= current.length) {
         state.chatStream = next;
@@ -307,7 +312,8 @@ export function handleChatEvent(state: ChatState, payload?: ChatEventPayload) {
       state.chatStream?.trim() &&
       !isSilentReplyText(state.chatStream) &&
       !isSilentReplyText(state.chatStream, HEARTBEAT_TOKEN) &&
-      !isSilentReplyPrefixText(state.chatStream)
+      !isSilentReplyPrefixText(state.chatStream) &&
+      !isSilentReplyPrefixText(state.chatStream, HEARTBEAT_TOKEN)
     ) {
       state.chatMessages = [
         ...state.chatMessages,
@@ -331,7 +337,8 @@ export function handleChatEvent(state: ChatState, payload?: ChatEventPayload) {
         streamedText.trim() &&
         !isSilentReplyText(streamedText) &&
         !isSilentReplyText(streamedText, HEARTBEAT_TOKEN) &&
-        !isSilentReplyPrefixText(streamedText)
+        !isSilentReplyPrefixText(streamedText) &&
+        !isSilentReplyPrefixText(streamedText, HEARTBEAT_TOKEN)
       ) {
         state.chatMessages = [
           ...state.chatMessages,
