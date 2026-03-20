@@ -168,7 +168,9 @@ describe("describeImageWithModel", () => {
       text: "flash ok",
       model: "gemini-3-flash-preview",
     });
-    expect(resolveModelWithRegistryMock).toHaveBeenCalledOnce();
+    expect(resolveModelWithRegistryMock).toHaveBeenCalledWith(
+      expect.objectContaining({ provider: "google", modelId: "gemini-3-flash-preview" }),
+    );
     expect(getApiKeyForModelMock).toHaveBeenCalledWith(
       expect.objectContaining({
         profileId: "google:default",
@@ -211,7 +213,9 @@ describe("describeImageWithModel", () => {
       text: "flash lite ok",
       model: "gemini-3.1-flash-lite-preview",
     });
-    expect(resolveModelWithRegistryMock).toHaveBeenCalledOnce();
+    expect(resolveModelWithRegistryMock).toHaveBeenCalledWith(
+      expect.objectContaining({ provider: "google", modelId: "gemini-3.1-flash-lite-preview" }),
+    );
     expect(getApiKeyForModelMock).toHaveBeenCalledWith(
       expect.objectContaining({
         profileId: "google:default",
@@ -253,7 +257,9 @@ describe("describeImageWithModel", () => {
               {
                 id: "vllm/Qwen3.5",
                 name: "Qwen3.5",
-                input: ["image", "text"] as string[],
+                reasoning: false,
+                input: ["image", "text"] as Array<"text" | "image">,
+                cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
                 contextWindow: 128000,
                 maxTokens: 8192,
               },

@@ -77,12 +77,14 @@ async function resolveImageRuntime(params: {
       resolvedRef.provider,
     );
     const configuredModel = providerConfig?.models?.find(
-      (m) =>
-        m.id === resolvedRef.model ||
-        m.id === `${resolvedRef.provider}/${resolvedRef.model}`,
+      (m) => m.id === resolvedRef.model || m.id === `${resolvedRef.provider}/${resolvedRef.model}`,
     );
     if (configuredModel?.input?.includes("image")) {
-      model = { ...model, input: configuredModel.input } as Model<Api>;
+      model = {
+        ...model,
+        input: configuredModel.input,
+        ...(configuredModel.api ? { api: configuredModel.api } : {}),
+      } as Model<Api>;
     }
   }
 
