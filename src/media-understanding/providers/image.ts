@@ -72,19 +72,19 @@ async function resolveImageRuntime(params: {
   // ID matching which can miss provider-prefixed IDs (e.g. "vllm/Qwen3.5" in
   // config vs "Qwen3.5" after model ref parsing).  Check the user's configured
   // model definition for explicit image support so the tool works correctly.
-  // We also match against the original params.provider (pre-normalization) since
-  // configs may use aliases like "nvidia-api/meta/..." while resolvedRef.provider
-  // is normalized to "nvidia".
+  // We prefer the exact params.provider key first so that configs containing
+  // both an alias (e.g. "nvidia-api") and the canonical name ("nvidia") resolve
+  // to the correct block — findNormalizedProviderValue would pick whichever
+  // entry normalizes first, which may be the wrong one.
   if (!model.input?.includes("image")) {
-    const providerConfig = findNormalizedProviderValue(
-      params.cfg?.models?.providers,
-      resolvedRef.provider,
-    );
+    const providers = params.cfg?.models?.providers;
+    const providerConfig =
+      providers?.[params.provider] ?? findNormalizedProviderValue(providers, resolvedRef.provider);
     const configuredModel = providerConfig?.models?.find(
       (m) =>
         m.id === resolvedRef.model ||
-        m.id === `${resolvedRef.provider}/${resolvedRef.model}` ||
-        m.id === `${params.provider}/${resolvedRef.model}`,
+        m.id === `${params.provider}/${resolvedRef.model}` ||
+        m.id === `${resolvedRef.provider}/${resolvedRef.model}`,
     );
     if (configuredModel?.input?.includes("image")) {
       model = {

@@ -294,10 +294,11 @@ describe("describeImageWithModel", () => {
     expect(completeMock).toHaveBeenCalledOnce();
   });
 
-  it("matches provider-prefixed model IDs against the original provider alias (#33185)", async () => {
-    // When provider is "nvidia-api", resolvedRef.provider becomes "nvidia" after
-    // normalization, but the user's config stores "nvidia-api/meta-llama".  The
-    // lookup must also try the original params.provider prefix.
+  it("prefers exact provider alias over normalized lookup for config fallback (#33185)", async () => {
+    // When provider is "nvidia-api", resolvedRef.provider normalizes to "nvidia".
+    // If the config contains both "nvidia" and "nvidia-api" entries, the exact
+    // params.provider key must be used so the nvidia-api/<model> definition is
+    // found rather than falling into the "nvidia" block.
     resolveModelWithRegistryMock.mockReturnValue({
       provider: "nvidia",
       id: "meta-llama",
@@ -320,6 +321,12 @@ describe("describeImageWithModel", () => {
     const cfg = {
       models: {
         providers: {
+          nvidia: {
+            baseUrl: "https://integrate.api.nvidia.com/v1",
+            apiKey: "nvidia-key", // pragma: allowlist secret
+            api: "openai-completions" as const,
+            models: [],
+          },
           "nvidia-api": {
             baseUrl: "https://integrate.api.nvidia.com/v1",
             apiKey: "nvidia-key", // pragma: allowlist secret
