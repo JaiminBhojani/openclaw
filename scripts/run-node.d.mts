@@ -13,12 +13,22 @@ export function resolveBuildRequirement(deps: {
   configFiles: string[];
 }): { shouldBuild: boolean; reason: string };
 
+export function acquireRunNodeBuildLock(deps: {
+  cwd: string;
+  args: readonly string[];
+  env: NodeJS.ProcessEnv;
+  fs: unknown;
+  process: NodeJS.Process;
+  stderr: { write: (value: string) => void };
+}): Promise<() => void>;
+
 export function runNodeMain(params?: {
   spawn?: (
     cmd: string,
     args: string[],
     options: unknown,
   ) => {
+    kill?: (signal?: string) => boolean | void;
     on: (
       event: "exit",
       cb: (code: number | null, signal: string | null) => void,
@@ -27,6 +37,7 @@ export function runNodeMain(params?: {
   spawnSync?: unknown;
   fs?: unknown;
   stderr?: { write: (value: string) => void };
+  process?: NodeJS.Process;
   execPath?: string;
   cwd?: string;
   args?: string[];

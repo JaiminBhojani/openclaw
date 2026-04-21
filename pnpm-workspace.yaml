@@ -6,8 +6,28 @@ packages:
 
 minimumReleaseAge: 2880
 
-# minimumReleaseAgeExclude:
-#   - "@mariozechner/*"
+minimumReleaseAgeExclude:
+  - "acpx"
+  - "axios"
+  - "basic-ftp"
+  - "hono"
+  - "openclaw"
+  - "protobufjs"
+  - "@buape/carbon"
+  - "vite"
+  - "@cloudflare/workers-types"
+  - "@hono/node-server"
+  - "@mariozechner/*"
+  - "@typescript/native-preview*"
+  - "@types/node"
+  - "@rolldown/*"
+  - "@oxlint/*"
+  - "@oxfmt/*"
+  - "axios@1.15.0"
+  - "discord-api-types"
+  - "rolldown"
+  - "sqlite-vec"
+  - "sqlite-vec-*"
 
 onlyBuiltDependencies:
   - "@lydell/node-pty"
@@ -22,5 +42,4 @@ onlyBuiltDependencies:
   - sharp
 
 ignoredBuiltDependencies:
-  - "@discordjs/opus"
   - koffi
