@@ -8,7 +8,6 @@ import {
 } from "../agents/model-auth.js";
 import { findNormalizedProviderValue, normalizeModelRef } from "../agents/model-selection.js";
 import { ensureOpenClawModelsJson } from "../agents/models-config.js";
-import { sanitizeModelHeaders } from "../agents/pi-embedded-runner/model.inline-provider.js";
 import { resolveModelWithRegistry } from "../agents/pi-embedded-runner/model.js";
 import { resolveProviderRequestCapabilities } from "../agents/provider-attribution.js";
 import {
@@ -96,6 +95,21 @@ function isImageModelNoTextError(err: unknown): boolean {
   return err instanceof Error && /^Image model returned no text\b/.test(err.message);
 }
 
+function pickStringHeaders(
+  headers: unknown,
+): Record<string, string> | undefined {
+  if (!headers || typeof headers !== "object" || Array.isArray(headers)) {
+    return undefined;
+  }
+  const next: Record<string, string> = {};
+  for (const [key, value] of Object.entries(headers)) {
+    if (typeof value === "string") {
+      next[key] = value;
+    }
+  }
+  return Object.keys(next).length > 0 ? next : undefined;
+}
+
 async function resolveImageRuntime(params: {
   cfg: ImageDescriptionRequest["cfg"];
   agentDir: string;
@@ -151,17 +165,16 @@ async function resolveImageRuntime(params: {
       // since resolveConfiguredFallbackModel missed this config entry due to
       // exact-id matching on the unprefixed modelId. Model-level headers
       // override provider-level headers already on the resolved model.
-      const configuredModelHeaders = sanitizeModelHeaders(configuredModel.headers, {
-        stripSecretRefMarkers: true,
-      });
-      const mergedHeaders = configuredModelHeaders
-        ? { ...(model.headers ?? {}), ...configuredModelHeaders }
-        : model.headers;
+      const configuredModelHeaders = pickStringHeaders(configuredModel.headers);
+      const mergedHeaders =
+        configuredModelHeaders && Object.keys(configuredModelHeaders).length > 0
+          ? { ...model.headers, ...configuredModelHeaders }
+          : model.headers;
       model = {
         ...model,
         input: configuredModel.input,
-        ...(configuredModel.api ? { api: configuredModel.api } : {}),
-        ...(mergedHeaders ? { headers: mergedHeaders } : {}),
+        ...(configuredModel.api && { api: configuredModel.api }),
+        ...(mergedHeaders && { headers: mergedHeaders }),
       } as Model<Api>;
     }
   }
